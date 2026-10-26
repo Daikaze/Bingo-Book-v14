@@ -1,0 +1,535 @@
+.bingo-book .window-content {
+  padding: 0;
+  overflow: hidden;
+  background: #e6dfd0;
+  color: #2b2b2b;
+}
+.bingo-book .bb-root, .bingo-book .bb-shell { height: 100%; }
+.bingo-book .bb-shell {
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(#f1ede4, #dbd3c3);
+  font-size: 14px;
+}
+.bingo-book .bb-topbar {
+  padding: 8px 12px 0;
+  border-bottom: 1px solid #b7ad98;
+}
+.bingo-book .bb-tabs { display: flex; gap: 6px; }
+.bingo-book .bb-tab {
+  border: 1px solid #9f9580;
+  border-bottom: none;
+  background: #d9d0bf;
+  padding: 8px 14px;
+  border-radius: 6px 6px 0 0;
+  font-weight: 600;
+}
+.bingo-book .bb-tab.active {
+  background: #f1ede4;
+  position: relative;
+  top: 1px;
+}
+.bingo-book .bb-body {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  min-height: 0;
+  flex: 1;
+}
+.bingo-book .bb-sidebar {
+  border-right: 1px solid #b7ad98;
+  background: rgba(255,255,255,0.24);
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+.bingo-book .bb-sidebar-head,
+.bingo-book .bb-sidebar-foot {
+  padding: 10px;
+  border-bottom: 1px solid #c7bfad;
+}
+.bingo-book .bb-sidebar-foot { border-top: 1px solid #c7bfad; border-bottom: none; }
+.bingo-book .bb-sidebar-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-weight: 700;
+}
+.bingo-book .bb-poster-list {
+  padding: 10px;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.bingo-book .bb-list-item {
+  display: grid;
+  grid-template-columns: 42px 1fr;
+  gap: 8px;
+  align-items: center;
+  text-align: left;
+  border: 1px solid #b7ad98;
+  background: #f7f4ee;
+  border-radius: 6px;
+  padding: 6px;
+}
+.bingo-book .bb-list-item.active { border-color: #d08b38; box-shadow: 0 0 0 1px #d08b38 inset; }
+.bingo-book .bb-list-item img {
+  width: 42px; height: 42px; object-fit: cover; border-radius: 4px; border: 1px solid #a39985;
+}
+.bingo-book .bb-li-main { min-width: 0; display: flex; flex-direction: column; }
+.bingo-book .bb-li-name { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.bingo-book .bb-li-sub { font-size: 12px; color: #655d50; }
+.bingo-book .bb-editor {
+  min-height: 0;
+  overflow: auto;
+  padding: 14px;
+}
+.bingo-book .bb-editor-grid {
+  display: grid;
+  grid-template-columns: minmax(340px, 430px) 1fr;
+  gap: 16px;
+  align-items: start;
+}
+.bingo-book .bb-left-form, .bingo-book .bb-right-preview {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.bingo-book .bb-section {
+  background: rgba(255,255,255,0.28);
+  border: 1px solid #c1b7a2;
+  border-radius: 6px;
+  padding: 10px;
+}
+.bingo-book .bb-section h3 {
+  margin: 0 0 10px;
+  font-size: 16px;
+  border-bottom: 1px solid #cfc7b8;
+  padding-bottom: 6px;
+}
+.bingo-book .bb-section label {
+  display: block;
+  margin: 0 0 4px;
+  font-weight: 600;
+}
+.bingo-book .bb-section input[type="text"],
+.bingo-book .bb-section select,
+.bingo-book .bb-section textarea,
+.bingo-book .bb-art-row input {
+  width: 100%;
+  border: 1px solid #b9af9b;
+  border-radius: 4px;
+  background: #f8f5ef;
+  min-height: 32px;
+}
+.bingo-book .bb-section textarea { resize: vertical; min-height: 92px; }
+.bingo-book .bb-readonly {
+  min-height: 32px;
+  display: flex;
+  align-items: center;
+  border: 1px solid #c8c0af;
+  background: rgba(255,255,255,0.35);
+  border-radius: 4px;
+  padding: 6px 8px;
+}
+.bingo-book .bb-multiline { align-items: flex-start; white-space: pre-wrap; }
+.bingo-book .bb-art-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+.bingo-book .bb-btn-row {
+  display: flex;
+  gap: 6px;
+}
+.bingo-book button {
+  border: 1px solid #a69983;
+  border-radius: 4px;
+  background: #ece6da;
+  color: #222;
+  min-height: 32px;
+}
+.bingo-book button:hover { box-shadow: 0 0 0 1px #d08b38 inset; }
+.bingo-book button.danger:hover { box-shadow: 0 0 0 1px #b33a2b inset; }
+.bingo-book .bb-empty {
+  padding: 20px;
+  text-align: center;
+  color: #5d5345;
+}
+
+.bingo-book .bb-preview-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+.bingo-book .bb-poster-card {
+  width: min(100%, 420px);
+  padding: 14px;
+  border: 1px solid #a9997e;
+  border-radius: 6px;
+}
+.bingo-book .bb-poster-card.bg-parchment { background: radial-gradient(circle at 30% 20%, #f5efdd 0%, #e6d7b2 70%, #d1b888 100%); }
+.bingo-book .bb-poster-card.bg-page { background: repeating-linear-gradient(0deg, #ece8db 0 28px, #e5e0d0 28px 29px); }
+.bingo-book .bb-poster-card.bg-dark { background: linear-gradient(#3b352d, #27231f); }
+.bingo-book .bb-poster-card.bg-clean { background: #f6f6f4; }
+.bingo-book .bb-poster-inner {
+  position: relative;
+  min-height: 300px;
+  border: 2px solid rgba(70, 56, 38, 0.75);
+  background: rgba(255,255,255,0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+.bingo-book .bb-poster-image {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 520px;
+  object-fit: contain;
+}
+.bingo-book .bb-rank-badge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 2;
+  background: rgba(19, 19, 19, 0.78);
+  color: #fff;
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-weight: 700;
+  font-size: 12px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+/* A small corner stamp, scaled against the POSTER width instead of the screen.
+   It must never crop words like CAPTURED or obscure the whole image. */
+.bingo-book .bb-poster-inner { container-type: inline-size; }
+.bingo-book .bb-stamp {
+  position: absolute;
+  z-index: 2;
+  top: auto;
+  left: auto;
+  right: 8%;
+  bottom: 8%;
+  transform: rotate(-7deg);
+  transform-origin: center;
+  box-sizing: border-box;
+  max-width: 82%;
+  white-space: nowrap;
+  padding: 3px 8px;
+  border: 2px solid currentColor;
+  border-radius: 4px;
+  font: 700 clamp(10px, 4cqw, 17px) / 1.15 Georgia, 'Times New Roman', serif;
+  letter-spacing: .035em;
+  text-transform: uppercase;
+  opacity: .7;
+  background: rgba(245, 231, 198, .12);
+  pointer-events: none;
+}
+.bingo-book .stamp-wanted { color: #9a1d1d; }
+.bingo-book .stamp-dead { color: #4a1717; }
+.bingo-book .stamp-captured { color: #225f95; }
+.bingo-book .stamp-missing { color: #7c5c14; }
+.bingo-book .stamp-cleared { color: #2a7e38; }
+.bingo-book .bb-preview-title {
+  font-size: 18px;
+  font-weight: 700;
+  text-align: center;
+}
+.bingo-book .bb-preview-notes {
+  font-size: 13px;
+  color: #50483d;
+  text-align: center;
+  white-space: pre-wrap;
+}
+
+@media (max-width: 900px) {
+  .bingo-book .bb-body { grid-template-columns: 220px 1fr; }
+  .bingo-book .bb-editor-grid { grid-template-columns: 1fr; }
+}
+.bingo-book .bb-access h3 { border-bottom: 1px solid #b7ad98; padding-bottom: 8px; }
+.bingo-book .bb-user { display: block; padding: 7px; border-bottom: 1px solid #c7bfad; }
+.bingo-book .bb-user input { vertical-align: middle; }
+.bingo-book .bb-sidebar-foot button { display: block; width: 100%; margin-top: 5px; }
+
+/* V11 permissions: independent access for the two books. */
+.bingo-book .bb-permission-table { display: flex; flex-direction: column; gap: 0; border: 1px solid #b7ad98; border-radius: 5px; overflow: hidden; }
+.bingo-book .bb-permission-row { display: grid; grid-template-columns: minmax(130px, 1fr) minmax(100px, 135px) minmax(100px, 135px); gap: 4px; align-items: center; padding: 9px 12px; border-bottom: 1px solid #c7bfad; }
+.bingo-book .bb-permission-row:last-child { border-bottom: none; }
+.bingo-book .bb-permission-row:nth-child(odd) { background: rgba(255,255,255,0.3); }
+.bingo-book .bb-permission-header { font-weight: 700; background: #d9d0bf !important; }
+.bingo-book .bb-permission-header span:not(:first-child), .bingo-book .bb-permission-cell { text-align: center; }
+.bingo-book .bb-permission-cell { display: block; cursor: pointer; }
+.bingo-book .bb-permission-cell input { width: 18px; height: 18px; vertical-align: middle; }
+.bingo-book .bb-access-note { padding-top: 12px; font-size: 12px; color: #5e5141; line-height: 1.45; }
+
+/* Poster actions appear next to its title, below the artwork. */
+.bingo-book .bb-preview-footer { display: flex; flex-wrap: wrap; gap: 9px; justify-content: center; align-items: center; padding: 9px 0 2px; }
+.bingo-book .bb-preview-footer-title { font-weight: 700; font-size: 18px; overflow-wrap: anywhere; }
+.bingo-book .bb-show-chat { padding: 3px 11px; min-width: max-content; }
+.bingo-book .bb-chat-share { border: 1px solid #b6a58c; border-radius: 5px; padding: 12px; margin: 10px auto 0; width: 100%; max-width: 430px; background: #eee6d7; }
+.bingo-book .bb-share-title { font-weight: 700; margin-bottom: 10px; border-bottom: 1px solid #c5b8a1; padding-bottom: 7px; }
+.bingo-book .bb-audience { display: flex !important; align-items: center; gap: 7px; margin: 8px 0 !important; font-weight: 400 !important; cursor: pointer; }
+.bingo-book .bb-chat-users { display: grid; gap: 6px; padding: 7px 12px; margin: 8px 0; max-height: 145px; overflow-y: auto; background: #faf6ee; border-radius: 4px; border: 1px solid #c7bfad; }
+.bingo-book .bb-chat-users label { font-weight: 400; margin: 0; display: flex; gap: 8px; align-items: center; cursor: pointer; }
+.bingo-book .bb-chat-actions { display: flex; gap: 6px; margin-top: 10px; }
+.bingo-book .bb-chat-actions button { flex: 1; }
+
+/* Chat renders outside the book window; keep the same art, small rank badge,
+   translucent status stamp and page background without any extra template. */
+.bb-chat-poster { max-width: 360px; margin: 0 auto; text-align: center; color: #372b1b; }
+.bb-chat-poster .bb-chat-heading { text-transform: uppercase; letter-spacing: 0.1em; font-weight: 700; font-family: Georgia, serif; padding: 4px 0 9px; }
+.bb-chat-poster .bb-poster-card { padding: 10px; border: 1px solid #a9997e; border-radius: 5px; }
+.bb-chat-poster .bb-poster-card.bg-parchment { background: radial-gradient(circle at 30% 20%, #f5efdd, #d1b888); }
+.bb-chat-poster .bb-poster-card.bg-page { background: repeating-linear-gradient(0deg, #ece8db 0 28px, #e5e0d0 28px 29px); }
+.bb-chat-poster .bb-poster-card.bg-dark { background: #322c26; }
+.bb-chat-poster .bb-poster-card.bg-clean { background: #f6f6f4; }
+.bb-chat-poster .bb-poster-inner { position: relative; border: 2px solid rgba(70,56,38,0.75); overflow: hidden; display: flex; justify-content: center; align-items: center; }
+.bb-chat-poster .bb-poster-image { display: block; width: 100%; max-height: 520px; height: auto; object-fit: contain; border: none; }
+.bb-chat-poster .bb-rank-badge { position: absolute; z-index: 1; top: 8px; right: 8px; background: rgba(19,19,19,.82); color: white; padding: 3px 10px; border-radius: 999px; font-weight: 700; font-size: 12px; }
+/* Chat cards use the SAME proportional stamp as the editor. */
+.bb-chat-poster .bb-poster-inner { container-type: inline-size; }
+.bb-chat-poster .bb-stamp {
+  position: absolute;
+  z-index: 2;
+  pointer-events: none;
+  top: auto;
+  left: auto;
+  right: 8%;
+  bottom: 8%;
+  transform: rotate(-7deg);
+  box-sizing: border-box;
+  max-width: 82%;
+  white-space: nowrap;
+  padding: 3px 8px;
+  border: 2px solid currentColor;
+  border-radius: 4px;
+  font: 700 clamp(10px, 4cqw, 17px) / 1.15 Georgia, 'Times New Roman', serif;
+  letter-spacing: .035em;
+  text-transform: uppercase;
+  opacity: .7;
+  background: rgba(245, 231, 198, .12);
+}
+.bb-chat-poster .stamp-wanted { color: #9a1d1d; }
+.bb-chat-poster .stamp-dead { color: #4a1717; }
+.bb-chat-poster .stamp-captured { color: #225f95; }
+.bb-chat-poster .stamp-missing { color: #7c5c14; }
+.bb-chat-poster .stamp-cleared { color: #2a7e38; }
+.bb-chat-poster .bb-chat-poster-name { margin: 8px 0 0; font-size: 17px; font-weight: 700; overflow-wrap: anywhere; }
+
+
+/* v0.3.4: the FULL original poster image must fit narrow Foundry V11 chat bubbles. */
+.chat-message .message-content:has(.bb-chat-poster) {
+  max-height: none !important;
+  overflow: visible !important;
+}
+.chat-message .message-content .bb-chat-poster,
+.bb-chat-poster {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  margin: 0 auto;
+  overflow: visible;
+}
+.chat-message .message-content .bb-chat-poster *,
+.bb-chat-poster * { box-sizing: border-box; }
+.chat-message .message-content .bb-chat-poster .bb-poster-card,
+.bb-chat-poster .bb-poster-card {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  height: auto;
+  max-height: none;
+  margin: 0;
+  padding: 6px;
+  overflow: visible;
+}
+.chat-message .message-content .bb-chat-poster .bb-poster-inner,
+.bb-chat-poster .bb-poster-inner {
+  position: relative;
+  display: block;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  min-height: 0;
+  height: auto;
+  max-height: none;
+  aspect-ratio: auto;
+  overflow: visible;
+}
+.chat-message .message-content .bb-chat-poster img.bb-poster-image,
+.bb-chat-poster img.bb-poster-image {
+  display: block !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+  height: auto !important;
+  min-height: 0 !important;
+  max-height: none !important;
+  object-fit: contain !important;
+  object-position: center !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+}
+.bb-chat-poster .bb-poster-inner { container-type: inline-size; }
+.bb-chat-poster .bb-rank-badge {
+  top: 3%; right: 3%;
+  font-size: clamp(9px, 2.8cqw, 12px);
+  max-width: 65%; white-space: nowrap; line-height: 1.1; padding: 3px 5px;
+}
+.bb-chat-poster .bb-stamp {
+  top: auto;
+  bottom: 8%;
+  left: auto;
+  right: 7%;
+  max-width: 88%;
+  font-size: clamp(14px, 8.5cqw, 28px);
+  padding: 4px 10px;
+  border-width: 3px;
+  white-space: nowrap;
+  line-height: 1.08;
+  letter-spacing: .04em;
+  overflow: visible;
+  transform: rotate(-7deg);
+}
+
+
+/* v0.3.6 — full-size original angled stamp, scaled to fit chat. */
+.bingo-book .bb-poster-inner,
+.bb-chat-poster .bb-poster-inner { container-type: inline-size; }
+.bingo-book .bb-poster-inner .bb-stamp,
+.bb-chat-poster .bb-poster-inner .bb-stamp {
+  position: absolute;
+  z-index: 2;
+  top: var(--bb-stamp-y, 39%);
+  left: var(--bb-stamp-x, 50%);
+  right: auto;
+  bottom: auto;
+  transform: translate(-50%, -50%) rotate(var(--bb-stamp-rotate, -18deg)) scale(var(--bb-stamp-scale, 1));
+  transform-origin: center;
+  display: block;
+  width: max-content;
+  max-width: 85%;
+  box-sizing: border-box;
+  padding: 5px 10px;
+  border: 4px solid currentColor;
+  border-radius: 6px;
+  font-family: Impact, 'Arial Black', sans-serif;
+  font-weight: 800;
+  font-size: clamp(16px, 11cqw, 41px);
+  line-height: 1.08;
+  letter-spacing: .075em;
+  text-align: center;
+  white-space: nowrap;
+  text-transform: uppercase;
+  opacity: var(--bb-stamp-opacity, .78);
+  background: rgba(255,255,255,.13);
+  pointer-events: none;
+}
+.bingo-book .bb-poster-inner .stamp-captured,
+.bingo-book .bb-poster-inner .stamp-missing,
+.bingo-book .bb-poster-inner .stamp-cleared,
+.bb-chat-poster .bb-poster-inner .stamp-captured,
+.bb-chat-poster .bb-poster-inner .stamp-missing,
+.bb-chat-poster .bb-poster-inner .stamp-cleared { font-size: clamp(15px, 9.3cqw, 35px); }
+/* Two-pane player view with the GM controls omitted. */
+.bingo-book .bb-player-stage {
+  min-width: 0;
+  min-height: 0;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 18px;
+  gap: 8px;
+}
+.bingo-book .bb-player-preview { width: min(100%, 375px); }
+.bingo-book .bb-player-stage .bb-poster-card { width: 100%; }
+.bingo-book .bb-player-stage .bb-poster-inner { min-height: 0; }
+.bingo-book .bb-player-stage .bb-poster-image { max-height: 450px; }
+.bingo-book .bb-player-title { font-size: 16px; overflow-wrap: anywhere; }
+/* Left-side rank categories for both books. */
+.bingo-book .bb-rank-categories {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 5px;
+  padding: 10px 9px;
+  border-bottom: 1px solid #b7ad98;
+  background: rgba(255,255,255,.19);
+}
+.bingo-book .bb-rank-filter {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px;
+  min-height: 29px;
+  padding: 4px 6px;
+  border: 1px solid #bcae92;
+  border-radius: 4px;
+  color: #413424;
+  background: #ede7da;
+  font: 700 12px/1.2 Georgia, serif;
+  cursor: pointer;
+}
+.bingo-book .bb-rank-filter:first-child { grid-column: 1 / -1; }
+.bingo-book .bb-rank-filter.active {
+  background: #c8aa7a;
+  border-color: #a77a39;
+  box-shadow: inset 0 0 0 1px #b18b52;
+}
+.bingo-book .bb-rank-count {
+  min-width: 21px;
+  padding: 2px 4px;
+  border-radius: 8px;
+  text-align: center;
+  background: rgba(80,57,30,.13);
+  font-family: Arial,sans-serif;
+  font-size: 11px;
+}
+@media (max-width: 700px) {
+  .bingo-book .bb-body { grid-template-columns: 195px 1fr; }
+  .bingo-book .bb-player-stage { padding: 10px; }
+}
+
+/* Bounty controls follow the existing V11 parchment form style. */
+.bingo-book .bb-section input[type="number"] {
+  width: 100%; min-height: 32px; border: 1px solid #b9af9b;
+  border-radius: 4px; background: #f8f5ef;
+}
+.bingo-book .bb-bounty-sort {
+  display: flex; flex-direction: column; gap: 3px;
+  padding: 7px 9px; border-bottom: 1px solid #b7ad98;
+  background: rgba(255,255,255,.19);
+}
+.bingo-book .bb-bounty-sort label { font-size: 12px; font-weight: 700; color: #413424; }
+.bingo-book .bb-bounty-sort select {
+  min-height: 30px; width: 100%; border-radius: 4px;
+  border: 1px solid #bcae92; background: #f8f5ef; color: #30281b;
+}
+
+.bingo-book .bb-stamp-settings { margin-top: 12px; padding-top: 10px; border-top: 1px solid #d1c7b6; }
+.bingo-book .bb-stamp-settings h4 { margin: 0 0 8px; font-size: 14px; }
+.bingo-book .bb-stamp-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.bingo-book .bb-stamp-grid label { display: flex; flex-direction: column; gap: 4px; font-weight: 600; }
+.bingo-book .bb-stamp-grid input { width: 100%; }
+.bingo-book .bb-stamp-reset-wrap { display: flex; align-items: end; }
+.bingo-book .bb-stamp-reset-wrap button { width: 100%; }
+
+/* ApplicationV2 host sizing and light/dark safety for Foundry V14. */
+.bingo-book.window-app, .bingo-book.application { min-width: 400px; }
+.bingo-book .window-content { padding: 0; min-height: 0; overflow: hidden; }
+.bingo-book .bb-root { height: 100%; min-height: 0; width: 100%; }
+.bingo-book .bb-shell { height: 100%; min-height: 0; }
+.bingo-book .bb-editor, .bingo-book .bb-poster-list { min-width: 0; }
+.bingo-book .bb-section input, .bingo-book .bb-section textarea,
+.bingo-book .bb-section select { color: #24201b; }

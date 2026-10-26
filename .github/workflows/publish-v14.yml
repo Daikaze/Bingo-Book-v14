@@ -1,0 +1,44 @@
+name: Build Bingo Book V14 installer
+on:
+  push:
+    branches: [main]
+    paths:
+      - "scripts/**"
+      - "styles/**"
+      - "module.json"
+      - "templates/**"
+      - "lang/**"
+      - "README.md"
+      - ".github/workflows/publish-v14.yml"
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  package:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check JavaScript and manifest
+        run: |
+          node --check scripts/main.js
+          python3 -c "import json; m=json.load(open('module.json')); assert m['compatibility']['minimum']=='14' and m['version']=='0.4.0'"
+      - name: Build V14 install ZIP
+        shell: bash
+        run: |
+          set -euo pipefail
+          VERSION=$(python3 -c "import json; print(json.load(open('module.json'))['version'])")
+          mkdir -p dist pack/bingo-book
+          cp module.json README.md pack/bingo-book/
+          cp -R scripts styles templates lang pack/bingo-book/
+          cd pack
+          zip -qr "../dist/bingo-book-v14-v${VERSION}.zip" bingo-book
+      - name: Commit installer
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add dist/
+          if ! git diff --cached --quiet; then
+            git commit -m "Build Bingo Book V14 installer"
+            git push
+          fi
