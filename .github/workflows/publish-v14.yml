@@ -22,17 +22,17 @@ jobs:
       - name: Check JavaScript and manifest
         run: |
           node --check scripts/main.js
-          python3 -c "import json; m=json.load(open('module.json')); assert m['compatibility']['minimum']=='14' and m['version']=='0.4.0'"
+          python3 -c "import json; m=json.load(open('module.json')); assert m['compatibility']['minimum']=='14' and m['version']=='0.4.1' and m['id']=='bingo-book-v14'"
       - name: Build V14 install ZIP
         shell: bash
         run: |
           set -euo pipefail
           VERSION=$(python3 -c "import json; print(json.load(open('module.json'))['version'])")
-          mkdir -p dist pack/bingo-book
-          cp module.json README.md pack/bingo-book/
-          cp -R scripts styles templates lang pack/bingo-book/
+          mkdir -p dist pack/bingo-book-v14
+          cp module.json README.md pack/bingo-book-v14/
+          cp -R scripts styles templates lang pack/bingo-book-v14/
           cd pack
-          zip -qr "../dist/bingo-book-v14-v${VERSION}.zip" bingo-book
+          zip -qr "../dist/bingo-book-v14-v${VERSION}.zip" bingo-book-v14
       - name: Commit installer
         run: |
           git config user.name "github-actions[bot]"

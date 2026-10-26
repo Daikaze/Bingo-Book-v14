@@ -1,4 +1,6 @@
-const MOD = 'bingo-book';
+// V14 package ID is independent, but its Journal data remains portable from V11.
+const MOD = 'bingo-book-v14';
+const DATA = 'bingo-book';
 const BOOKS = {
   bingo: 'Bingo Book',
   target: 'Target Book'
@@ -39,11 +41,11 @@ function clamp(value, min, max, fallback) {
 }
 function stampSettings(page) {
   return {
-    scale: clamp(page?.getFlag(MOD, 'stampScale'), 0.5, 2.5, DEFAULT_STAMP.scale),
-    opacity: clamp(page?.getFlag(MOD, 'stampOpacity'), 0.2, 1, DEFAULT_STAMP.opacity),
-    rotate: clamp(page?.getFlag(MOD, 'stampRotate'), -45, 45, DEFAULT_STAMP.rotate),
-    x: clamp(page?.getFlag(MOD, 'stampX'), 10, 90, DEFAULT_STAMP.x),
-    y: clamp(page?.getFlag(MOD, 'stampY'), 10, 90, DEFAULT_STAMP.y)
+    scale: clamp(page?.getFlag(DATA, 'stampScale'), 0.5, 2.5, DEFAULT_STAMP.scale),
+    opacity: clamp(page?.getFlag(DATA, 'stampOpacity'), 0.2, 1, DEFAULT_STAMP.opacity),
+    rotate: clamp(page?.getFlag(DATA, 'stampRotate'), -45, 45, DEFAULT_STAMP.rotate),
+    x: clamp(page?.getFlag(DATA, 'stampX'), 10, 90, DEFAULT_STAMP.x),
+    y: clamp(page?.getFlag(DATA, 'stampY'), 10, 90, DEFAULT_STAMP.y)
   };
 }
 function stampStyleAttr(page) {
@@ -76,14 +78,32 @@ function ownershipFor(book) {
   return ownership;
 }
 
-// v0.3.0 had one shared allowlist. Copy it ONCE into both books to preserve
-// existing access, then let each book be configured independently.
+// V11 stores all poster flags under "bingo-book". Read, but never mutate,
+// its old world settings and migrate browsing permissions once to the V14 namespace.
+function oldWorldSetting(key) {
+  try {
+    const raw = game.settings.storage.get('world')?.get(`${DATA}.${key}`)?.value;
+    if (typeof raw === 'string') {
+      try { return JSON.parse(raw); } catch (_) { return raw; }
+    }
+    return raw;
+  } catch (error) {
+    console.warn(`${MOD} | Could not read old ${key} setting`, error);
+    return undefined;
+  }
+}
 async function migratePermissions() {
   if (!game.user.isGM || game.settings.get(MOD, 'permissionsMigrated')) return;
-  const legacy = game.settings.get(MOD, 'allowedUsers') || {};
+  const legacy = {
+    ...(oldWorldSetting('allowedUsers') || {}),
+    ...(game.settings.get(MOD, 'allowedUsers') || {})
+  };
+  const previous = oldWorldSetting('bookPermissions') || {};
   const saved = permissions();
   const next = {};
-  for (const book of Object.keys(BOOKS)) next[book] = { ...legacy, ...(saved[book] || {}) };
+  for (const book of Object.keys(BOOKS)) {
+    next[book] = { ...legacy, ...(previous[book] || {}), ...(saved[book] || {}) };
+  }
   await game.settings.set(MOD, 'bookPermissions', next);
   await game.settings.set(MOD, 'permissionsMigrated', true);
 }
@@ -97,7 +117,7 @@ function updateControls() {
 
 
 function getBookJournal(book) {
-  return game.journal.find(j => j.getFlag(MOD, 'book') === book || (j.getFlag(MOD, 'bookRoot') && j.getFlag(MOD, 'bookType') === book)) ?? null;
+  return game.journal.find(j => j.getFlag(DATA, 'book') === book || (j.getFlag(DATA, 'bookRoot') && j.getFlag(DATA, 'bookType') === book)) ?? null;
 }
 
 async function ensureBookJournal(book) {
@@ -106,7 +126,7 @@ async function ensureBookJournal(book) {
   journal = await JournalEntry.create({
     name: BOOKS[book],
     ownership: ownershipFor(book),
-    flags: { [MOD]: { bookRoot: true, bookType: book, book } }
+    flags: { [DATA]: { bookRoot: true, bookType: book, book } }
   });
   return journal;
 }
@@ -149,21 +169,21 @@ function actorOptions(selectedUuid) {
 }
 
 function posterThumb(page) {
-  const uuid = page.getFlag(MOD, 'uuid') ?? '';
+  const uuid = page.getFlag(DATA, 'uuid') ?? '';
   const actor = uuid ? fromUuidSync(uuid) : null;
-  const img = page.getFlag(MOD, 'image') || (page.type === 'image' ? page.src : '') || actor?.img || 'icons/svg/mystery-man.svg';
+  const img = page.getFlag(DATA, 'image') || (page.type === 'image' ? page.src : '') || actor?.img || 'icons/svg/mystery-man.svg';
   return img;
 }
 
 function previewHTML(page, includeNotes = true) {
-  const uuid = page?.getFlag(MOD, 'uuid') ?? '';
+  const uuid = page?.getFlag(DATA, 'uuid') ?? '';
   const actor = uuid ? fromUuidSync(uuid) : null;
   const image = page ? posterThumb(page) : 'icons/svg/mystery-man.svg';
-  const rawStatus = page?.getFlag(MOD, 'status') ?? 'None';
+  const rawStatus = page?.getFlag(DATA, 'status') ?? 'None';
   const status = ({ active: 'Wanted', claimed: 'Captured', lost: 'Missing', dropped: 'Cleared' })[rawStatus] || rawStatus;
-  const rank = rankFor(page?.getFlag(MOD, 'rank'));
-  const bg = page?.getFlag(MOD, 'background') ?? 'parchment';
-  const notes = page?.getFlag(MOD, 'notes') ?? '';
+  const rank = rankFor(page?.getFlag(DATA, 'rank'));
+  const bg = page?.getFlag(DATA, 'background') ?? 'parchment';
+  const notes = page?.getFlag(DATA, 'notes') ?? '';
 
   return `
     <div class="bb-preview-wrap">
@@ -182,7 +202,7 @@ function previewHTML(page, includeNotes = true) {
 // Rank categories are simple filters on existing Journal pages.
 function rankCategoriesHTML(allPosters) {
   const counts = Object.fromEntries(RANKS.map(rank => [rank, 0]));
-  for (const page of allPosters) counts[rankFor(page.getFlag(MOD, 'rank'))]++;
+  for (const page of allPosters) counts[rankFor(page.getFlag(DATA, 'rank'))]++;
   const choices = [['all', 'All Ranks', allPosters.length], ...RANKS.map(rank => [rank, `Rank ${rank}`, counts[rank]])];
   return `<nav class="bb-rank-categories" aria-label="Poster rank categories">
     ${choices.map(([rank, label, count]) => `<button type="button" class="bb-rank-filter${S.rankFilter === rank ? ' active' : ''}"
@@ -203,8 +223,8 @@ function bountyAmount(value) {
   return digits && Number.isSafeInteger(number) ? number : null;
 }
 function bountyFor(page) {
-  const explicit = page.getFlag(MOD, 'bounty');
-  return bountyAmount(explicit === undefined ? page.getFlag(MOD, 'reward') : explicit);
+  const explicit = page.getFlag(DATA, 'bounty');
+  return bountyAmount(explicit === undefined ? page.getFlag(DATA, 'reward') : explicit);
 }
 function orderByBounty(posters, direction) {
   if (direction !== 'high' && direction !== 'low') return posters;
@@ -278,10 +298,10 @@ function chatShareHTML() {
 // or edit controls are embedded in the message.
 function chatPosterHTML(page, book) {
   const image = posterThumb(page);
-  const rawStatus = page.getFlag(MOD, 'status') ?? 'None';
+  const rawStatus = page.getFlag(DATA, 'status') ?? 'None';
   const status = ({ active: 'Wanted', claimed: 'Captured', lost: 'Missing', dropped: 'Cleared' })[rawStatus] || rawStatus;
-  const rank = rankFor(page.getFlag(MOD, 'rank'));
-  const background = page.getFlag(MOD, 'background') ?? 'parchment';
+  const rank = rankFor(page.getFlag(DATA, 'rank'));
+  const background = page.getFlag(DATA, 'background') ?? 'parchment';
   const bg = Object.prototype.hasOwnProperty.call(BACKGROUNDS, background) ? background : 'parchment';
   return `<div class="bb-chat-poster">
     <div class="bb-chat-heading">${esc(BOOKS[book])}</div>
@@ -325,13 +345,13 @@ function emptyState(gm) {
 
 function formHTML(page, gm) {
   if (!page) return `<section class="bb-editor">${emptyState(gm)}</section>`;
-  const uuid = page.getFlag(MOD, 'uuid') ?? '';
-  const image = page.getFlag(MOD, 'image') ?? '';
-  const rawStatus = page.getFlag(MOD, 'status') ?? 'None';
+  const uuid = page.getFlag(DATA, 'uuid') ?? '';
+  const image = page.getFlag(DATA, 'image') ?? '';
+  const rawStatus = page.getFlag(DATA, 'status') ?? 'None';
   const status = ({ active: 'Wanted', claimed: 'Captured', lost: 'Missing', dropped: 'Cleared' })[rawStatus] || rawStatus;
-  const rank = rankFor(page.getFlag(MOD, 'rank'));
-  const background = page.getFlag(MOD, 'background') ?? 'parchment';
-  const notes = page.getFlag(MOD, 'notes') ?? '';
+  const rank = rankFor(page.getFlag(DATA, 'rank'));
+  const background = page.getFlag(DATA, 'background') ?? 'parchment';
+  const notes = page.getFlag(DATA, 'notes') ?? '';
   const bounty = bountyFor(page);
   const stamp = stampSettings(page);
 
@@ -444,8 +464,8 @@ function updateVisiblePoster(root, page) {
     if (title) title.textContent = page.name;
     const sub = activeRow.querySelector('.bb-li-sub');
     if (sub) {
-      const status = ({ active: 'Wanted', claimed: 'Captured', lost: 'Missing', dropped: 'Cleared' })[page.getFlag(MOD, 'status')] || page.getFlag(MOD, 'status') || 'None';
-      sub.textContent = `${status} • Rank ${rankFor(page.getFlag(MOD, 'rank'))}`;
+      const status = ({ active: 'Wanted', claimed: 'Captured', lost: 'Missing', dropped: 'Cleared' })[page.getFlag(DATA, 'status')] || page.getFlag(DATA, 'status') || 'None';
+      sub.textContent = `${status} • Rank ${rankFor(page.getFlag(DATA, 'rank'))}`;
     }
   }
   const footerTitle = root.querySelector('.bb-preview-footer-title');
@@ -465,7 +485,7 @@ async function draw(root) {
     await ensureBookJournal('target');
   }
   const allPosters = getPosters(S.book);
-  const posters = S.rankFilter === 'all' ? allPosters : orderByBounty(allPosters.filter(p => rankFor(p.getFlag(MOD, 'rank')) === S.rankFilter), S.bountySort[S.book]);
+  const posters = S.rankFilter === 'all' ? allPosters : orderByBounty(allPosters.filter(p => rankFor(p.getFlag(DATA, 'rank')) === S.rankFilter), S.bountySort[S.book]);
   if (!posters.some(p => p.id === S.selected)) S.selected = posters[0]?.id ?? null;
   const page = getSelectedPage();
 
@@ -489,9 +509,9 @@ async function draw(root) {
           <div class="bb-poster-list">
             ${posters.length ? posters.map(p => {
               const thumb = posterThumb(p);
-              const rawStatus = p.getFlag(MOD, 'status') ?? 'None';
+              const rawStatus = p.getFlag(DATA, 'status') ?? 'None';
               const status = ({ active: 'Wanted', claimed: 'Captured', lost: 'Missing', dropped: 'Cleared' })[rawStatus] || rawStatus;
-              const rank = rankFor(p.getFlag(MOD, 'rank'));
+              const rank = rankFor(p.getFlag(DATA, 'rank'));
               return `<button type="button" class="bb-list-item${p.id === S.selected ? ' active' : ''}" data-act="select-poster" data-page="${p.id}">
                 <img src="${esc(imgSrc(thumb))}" alt="">
                 <span class="bb-li-main">
@@ -548,7 +568,7 @@ function mount(root, app) {
     }
     if (act === 'select-poster') {
       const matching = getPosters(S.book).some(p => p.id === el.dataset.page &&
-        (S.rankFilter === 'all' || rankFor(p.getFlag(MOD, 'rank')) === S.rankFilter));
+        (S.rankFilter === 'all' || rankFor(p.getFlag(DATA, 'rank')) === S.rankFilter));
       if (!matching) return;
       S.selected = el.dataset.page;
       S.chatOpen = false;
@@ -566,11 +586,11 @@ function mount(root, app) {
         if (!page) break;
         // One atomic embedded-document update prevents concurrent flag writes overwriting one another.
         await page.update({
-          [`flags.${MOD}.stampScale`]: DEFAULT_STAMP.scale,
-          [`flags.${MOD}.stampOpacity`]: DEFAULT_STAMP.opacity,
-          [`flags.${MOD}.stampRotate`]: DEFAULT_STAMP.rotate,
-          [`flags.${MOD}.stampX`]: DEFAULT_STAMP.x,
-          [`flags.${MOD}.stampY`]: DEFAULT_STAMP.y
+          [`flags.${DATA}.stampScale`]: DEFAULT_STAMP.scale,
+          [`flags.${DATA}.stampOpacity`]: DEFAULT_STAMP.opacity,
+          [`flags.${DATA}.stampRotate`]: DEFAULT_STAMP.rotate,
+          [`flags.${DATA}.stampX`]: DEFAULT_STAMP.x,
+          [`flags.${DATA}.stampY`]: DEFAULT_STAMP.y
         });
         refresh();
         break;
@@ -582,7 +602,7 @@ function mount(root, app) {
           name: 'New Poster',
           type: 'text',
           text: { content: '', format: 1 },
-          flags: { [MOD]: { image: '', status: 'None', rank: S.rankFilter === 'all' ? 'D' : S.rankFilter, background: 'parchment', uuid: '', notes: '', stampScale: DEFAULT_STAMP.scale, stampOpacity: DEFAULT_STAMP.opacity, stampRotate: DEFAULT_STAMP.rotate, stampX: DEFAULT_STAMP.x, stampY: DEFAULT_STAMP.y } }
+          flags: { [DATA]: { image: '', status: 'None', rank: S.rankFilter === 'all' ? 'D' : S.rankFilter, background: 'parchment', uuid: '', notes: '', stampScale: DEFAULT_STAMP.scale, stampOpacity: DEFAULT_STAMP.opacity, stampRotate: DEFAULT_STAMP.rotate, stampX: DEFAULT_STAMP.x, stampY: DEFAULT_STAMP.y } }
         }]);
         S.selected = created?.[0]?.id ?? null;
         refresh();
@@ -601,20 +621,20 @@ function mount(root, app) {
       case 'pick-image': {
         const page = currentPage();
         if (!page) return;
-        new (foundry.applications.apps.FilePicker.implementation)({ type: 'image', callback: path => page.setFlag(MOD, 'image', path) }).render({ force: true });
+        new (foundry.applications.apps.FilePicker.implementation)({ type: 'image', callback: path => page.setFlag(DATA, 'image', path) }).render({ force: true });
         break;
       }
       case 'clear-image': {
-        await currentPage()?.setFlag(MOD, 'image', '');
+        await currentPage()?.setFlag(DATA, 'image', '');
         break;
       }
       case 'use-portrait': {
         const page = currentPage();
         if (!page) return;
-        const uuid = page.getFlag(MOD, 'uuid');
+        const uuid = page.getFlag(DATA, 'uuid');
         const actor = uuid ? fromUuidSync(uuid) : null;
         if (!actor?.img) return ui.notifications.warn('Select an actor first.');
-        await page.setFlag(MOD, 'image', actor.img);
+        await page.setFlag(DATA, 'image', actor.img);
         break;
       }
     }
@@ -660,9 +680,9 @@ function mount(root, app) {
     try {
       switch (field.dataset.field) {
         case 'name': await page.update({ name: value.trim() || 'New Poster' }); break;
-        case 'uuid': await page.setFlag(MOD, 'uuid', value); break;
-        case 'status': await page.setFlag(MOD, 'status', value); break;
-        case 'rank': await page.setFlag(MOD, 'rank', value); break;
+        case 'uuid': await page.setFlag(DATA, 'uuid', value); break;
+        case 'status': await page.setFlag(DATA, 'status', value); break;
+        case 'rank': await page.setFlag(DATA, 'rank', value); break;
         case 'bounty': {
           const amount = value.trim();
           if (amount && (!/^\d+$/.test(amount) || !Number.isSafeInteger(Number(amount)))) {
@@ -670,24 +690,24 @@ function mount(root, app) {
             refresh();
             return;
           }
-          await page.setFlag(MOD, 'bounty', amount === '' ? '' : Number(amount));
+          await page.setFlag(DATA, 'bounty', amount === '' ? '' : Number(amount));
           break;
         }
-        case 'background': await page.setFlag(MOD, 'background', value); break;
+        case 'background': await page.setFlag(DATA, 'background', value); break;
         case 'stampScale': {
           const amount = clamp(Number(value) / 100, 0.5, 2.5, DEFAULT_STAMP.scale);
-          await page.setFlag(MOD, 'stampScale', amount);
+          await page.setFlag(DATA, 'stampScale', amount);
           break;
         }
         case 'stampOpacity': {
           const amount = clamp(Number(value) / 100, 0.2, 1, DEFAULT_STAMP.opacity);
-          await page.setFlag(MOD, 'stampOpacity', amount);
+          await page.setFlag(DATA, 'stampOpacity', amount);
           break;
         }
-        case 'stampRotate': await page.setFlag(MOD, 'stampRotate', clamp(value, -45, 45, DEFAULT_STAMP.rotate)); break;
-        case 'stampX': await page.setFlag(MOD, 'stampX', clamp(value, 10, 90, DEFAULT_STAMP.x)); break;
-        case 'stampY': await page.setFlag(MOD, 'stampY', clamp(value, 10, 90, DEFAULT_STAMP.y)); break;
-        case 'notes': await page.setFlag(MOD, 'notes', value); break;
+        case 'stampRotate': await page.setFlag(DATA, 'stampRotate', clamp(value, -45, 45, DEFAULT_STAMP.rotate)); break;
+        case 'stampX': await page.setFlag(DATA, 'stampX', clamp(value, 10, 90, DEFAULT_STAMP.x)); break;
+        case 'stampY': await page.setFlag(DATA, 'stampY', clamp(value, 10, 90, DEFAULT_STAMP.y)); break;
+        case 'notes': await page.setFlag(DATA, 'notes', value); break;
         default: return;
       }
       // A user may select another poster while the save is in-flight.
@@ -728,7 +748,7 @@ function mount(root, app) {
 // Foundry V14 uses ApplicationV2 instead of the V11 Application/activateListeners API.
 class BingoBookApp extends foundry.applications.api.ApplicationV2 {
   static DEFAULT_OPTIONS = {
-    id: 'bingo-book',
+    id: MOD,
     classes: ['bingo-book'],
     window: { title: 'Bingo Book & Target Book', resizable: true },
     position: { width: 1080, height: 760 }
@@ -822,7 +842,7 @@ Hooks.on('updateJournalEntryPage', page => {
 });
 
 Hooks.on('updateJournalEntry', journal => {
-  if (journal.getFlag(MOD, 'bookRoot') || journal.getFlag(MOD, 'book')) refreshSoon();
+  if (journal.getFlag(DATA, 'bookRoot') || journal.getFlag(DATA, 'book')) refreshSoon();
 });
 
 // Keep the internal book Journals out of the player's sidebar while still
@@ -830,7 +850,7 @@ Hooks.on('updateJournalEntry', journal => {
 function hideBookJournals(root) {
   if (game.user.isGM || !root?.querySelectorAll) return;
   for (const journal of game.journal) {
-    if (!journal.getFlag(MOD, 'bookRoot') && !journal.getFlag(MOD, 'book')) continue;
+    if (!journal.getFlag(DATA, 'bookRoot') && !journal.getFlag(DATA, 'book')) continue;
     // Foundry V14 journals may be represented by document or entry IDs.
     for (const item of root.querySelectorAll('[data-document-id], [data-entry-id]')) {
       if (item.dataset.documentId === journal.id || item.dataset.entryId === journal.id) item.remove();

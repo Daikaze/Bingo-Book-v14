@@ -1,8 +1,8 @@
 {
-  "id": "bingo-book",
+  "id": "bingo-book-v14",
   "title": "Bingo Book & Target Book (V14)",
-  "description": "Bingo and Target wanted poster books for Foundry VTT V14 and D&D5e 5.3.3. Separate GM/player views, permissions, chat sharing, rank filters, bounty sort, responsive posters and custom status stamp settings.",
-  "version": "0.4.0",
+  "description": "Bingo Book V14 for Foundry VTT 14 / D&D5e 5.3.3. Separate install ID to avoid V11 collision, legacy poster Journal data compatibility and old player-permission migration.",
+  "version": "0.4.1",
   "compatibility": {
     "minimum": "14",
     "verified": "14",
@@ -31,7 +31,7 @@
   ],
   "url": "https://github.com/Daikaze/Bingo-Book-v14",
   "manifest": "https://raw.githubusercontent.com/Daikaze/Bingo-Book-v14/main/module.json",
-  "download": "https://raw.githubusercontent.com/Daikaze/Bingo-Book-v14/main/dist/bingo-book-v14-v0.4.0.zip",
+  "download": "https://raw.githubusercontent.com/Daikaze/Bingo-Book-v14/main/dist/bingo-book-v14-v0.4.1.zip",
   "relationships": {
     "systems": [
       {
